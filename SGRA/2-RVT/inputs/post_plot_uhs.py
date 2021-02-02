@@ -42,7 +42,8 @@ trad_data = np.genfromtxt(traditional_file, delimiter=',', dtype=None, names=Tru
 
 
 # trad_data = np.array(trad_data.tolist())
-
+# print('trad_data=', trad_data)
+# print('uhs_all=', uhs_all)
 for ii in range(len(list_rp)):
     irp = list_rp[ii]
     
@@ -56,14 +57,14 @@ for ii in range(len(list_rp)):
     # print(type(uhs_data))
     # UHS_periods = uhs_data[:,0]
     # UHS_sa = uhs_data[:,1]
-    ax0.semilogx(uhs_data[:,0],uhs_data[:,1],
+    ax0.semilogx(uhs_data[:-1,0],uhs_data[:-1,1],
                  color = 'k', #list_colors[icount], 
                  # marker='o', 
                  linestyle=list_ltypes[icount],
                  linewidth=1, #markersize=12,
                  label= f'bedrock-{list_rp[icount]}yr')
         
-    
+    # print('uhs_data=', uhs_data)
     icount+=1
     ax0.semilogx(uhs_all[:,0],uhs_all[:,ii+1],
                  color = 'k', # list_colors[icount], 
@@ -85,7 +86,7 @@ for ii in range(len(list_rp)):
     ax0.legend() 
     
     ####----
-    # ax0.set_ylim([0.0001,0.1])
+    ax0.set_ylim([0,1.2])
     ax0.set(xlabel='Period (s)', ylabel=f'SA (g)',
                     title=f'{irp}-year')
     ax0.grid()

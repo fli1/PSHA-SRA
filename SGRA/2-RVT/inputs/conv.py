@@ -138,12 +138,14 @@ for ip in list_periods:
     
     fig.savefig(fit_folder+f'Salem_hc_surface_{ip}s.png', dpi=300)
     plt.show()
-        
 
+header = 'period_s'
+for irp in list_rp:
+    header += f",UHS{irp}yr" 
 fname = fit_folder+'uhs_surface.csv' #'CMS_NGA_east.csv'
 with open(fname, 'w') as f:    
     # np.savetxt(f, case, delimiter=',')
-    f.write('period_s,' + '\n')
+    f.write(header + '\n')
 with open(fname, 'ba') as f:
     np.savetxt(f, uhs_all, delimiter=',')
 

@@ -104,40 +104,57 @@ for ii in range(no_periods):
 
     z = np.polyfit(x, y, 1)
     p = np.poly1d(z)
-    xp = np.logspace(-4, 0, 50)
+    xp = np.logspace(-4, 0, 200)
     ax0.semilogx(xp,p(xp), "r-", label='polynomial-fit')
     
     ## curve fit
     # x= x.tolist()
+    f3_list = np.logspace(-4, 0, 100)
+    SD_res_min = 10000
+    f3_opt = 1.
     
-    def obj(x, f1, f2, f3):
-        
-        return np.exp(f1+f2*np.log((x+f3)/f3))
+    for f3 in f3_list:
+        def obj(x, f1, f2):        
+            return np.exp(f1+f2*np.log((x+f3)/f3))
+        param_value, param_cov = curve_fit(obj, x, y) 
+        ans = np.exp(param_value[0]+param_value[1]*np.log((x+f3)/f3))
+        # ax0.plot(x, y, 'o', color ='red', label ="data") 
+        SD_res = round(sqrt(sum((y-ans)**2)/(len(x)-3)),3)
+        if SD_res<SD_res_min:
+            f3_opt = f3
+            SD_res_min = SD_res
+    print('f3_opt=',f3_opt)
     
+    def obj(x, f1, f2):        
+            return np.exp(f1+f2*np.log((x+f3_opt)/f3_opt))
     param_value, param_cov = curve_fit(obj, x, y) 
+    ans = np.exp(param_value[0]+param_value[1]*np.log((x+f3_opt)/f3_opt))
+    # ax0.plot(x, y, 'o', color ='red', label ="data") 
+    SD_res = round(sqrt(sum((y-ans)**2)/(len(x)-3)),3)
     # print(type(param_value))
     param_value = np.round(param_value,3)
     param_cov = np.round(param_cov,3)
+
     
     # print("funcion coefficients:", param_value) 
     # print("Covariance of coefficients:", param_cov) 
     ax0.text(0.0001, 3.5, "f1="+ str( param_value[0])+
-             "; f2="+ str( param_value[1])+"; f3="+ str( param_value[2]),
+             "; f2="+ str( param_value[1])+"; f3="+ str( f3_opt),
              fontsize=10)
     # ax0.text(0.0001, 3.0, "COV:"+ str(param_cov),
     #          fontsize=10)
     # ans = (param[0]*(np.sin(param[1]*x))) 
-    ans = np.exp(param_value[0]+param_value[1]*np.log((x+param_value[2])/param_value[2]))
-    # ax0.plot(x, y, 'o', color ='red', label ="data") 
-    SD_res = round(sqrt(sum((y-ans)**2)/(len(x)-3)),3)
+    
     ax0.text(0.0001, 3.0, "SD: "+ str(SD_res),
              fontsize=10)
     
     curfit_params.append([ip, param_value[0], param_value[1],
-                           param_value[2], SD_res, sqrt(param_cov[0,0]),
-                          sqrt(param_cov[1,1]),
-                          sqrt(param_cov[2,2])])
-    ax0.plot(x, ans, '--', color ='blue', 
+                           f3_opt, SD_res, sqrt(param_cov[0,0]),
+                          sqrt(param_cov[1,1])])
+    
+    ans = np.exp(param_value[0]+param_value[1]*np.log((xp+f3_opt)/f3_opt))
+    
+    ax0.plot(xp, ans, '--', color ='blue', 
              linewidth=2,
              label ="Stewart-fit") 
     ax0.legend() 
@@ -158,7 +175,7 @@ pdf.close()
 fname = rvt_output_folder+'fit_aprams.csv' #'CMS_NGA_east.csv'
 with open(fname, 'w') as f:    
     # np.savetxt(f, case, delimiter=',')
-    f.write('period_s,f1,f2,f3,sd_res,cov1,cov2,cov3' + '\n')
+    f.write('period_s,f1,f2,f3,sd_res,cov1,cov2' + '\n')
 with open(fname, 'ba') as f:
     np.savetxt(f, curfit_params, delimiter=',')
 
